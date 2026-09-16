@@ -4,20 +4,36 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
 import { Wordmark } from "./Wordmark";
+import { LanguageToggle } from "./LanguageToggle";
+import { useLanguage } from "@/lib/language";
 import { cn } from "@/lib/utils";
 
-const LINKS = [
-  { href: "/#services", label: "Services" },
-  { href: "/#assessment", label: "Assessment" },
-  { href: "/#methodology", label: "Methodology" },
-  { href: "/#industries", label: "Industries" },
-  { href: "/#about", label: "About" },
-  { href: "/#insights", label: "Insights" },
-];
+const LINKS = {
+  mn: [
+    { href: "/#services", label: "Үйлчилгээ" },
+    { href: "/#assessment", label: "Үнэлгээ" },
+    { href: "/#methodology", label: "Арга зүй" },
+    { href: "/#about", label: "Бидний тухай" },
+  ],
+  en: [
+    { href: "/#services", label: "Services" },
+    { href: "/#assessment", label: "Assessment" },
+    { href: "/#methodology", label: "Methodology" },
+    { href: "/#about", label: "About" },
+  ],
+};
+
+const COPY = {
+  mn: { cta: "Үнэлгээгээ эхлүүлэх", openMenu: "Цэс нээх", closeMenu: "Цэс хаах" },
+  en: { cta: "Start your assessment", openMenu: "Open menu", closeMenu: "Close menu" },
+};
 
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const { locale } = useLanguage();
+  const links = LINKS[locale];
+  const t = COPY[locale];
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -39,7 +55,7 @@ export function Navbar() {
           <Wordmark />
 
           <div className="ml-auto hidden gap-1 lg:flex">
-            {LINKS.map((l) => (
+            {links.map((l) => (
               <Link
                 key={l.href}
                 href={l.href}
@@ -51,12 +67,15 @@ export function Navbar() {
           </div>
 
           <Link href="/assessment" className="btn btn-p btn-sm ml-[6px] hidden lg:inline-flex">
-            Start your assessment
+            {t.cta}
           </Link>
 
+          <LanguageToggle className="ml-[6px] hidden lg:inline-flex" />
+          <LanguageToggle className="ml-auto lg:hidden" />
+
           <button
-            className="ml-auto p-[10px] lg:hidden"
-            aria-label={open ? "Close menu" : "Open menu"}
+            className="p-[10px] lg:ml-2 lg:hidden"
+            aria-label={open ? t.closeMenu : t.openMenu}
             aria-expanded={open}
             onClick={() => setOpen((v) => !v)}
           >
@@ -66,7 +85,7 @@ export function Navbar() {
 
         {open && (
           <div className="border-t border-[var(--line)] pb-[22px] pt-[14px] lg:hidden">
-            {LINKS.map((l) => (
+            {links.map((l) => (
               <Link
                 key={l.href}
                 href={l.href}
@@ -77,7 +96,7 @@ export function Navbar() {
               </Link>
             ))}
             <Link href="/assessment" className="btn btn-p mt-[18px] w-full">
-              Start your assessment
+              {t.cta}
             </Link>
           </div>
         )}
