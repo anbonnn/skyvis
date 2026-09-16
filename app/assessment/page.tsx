@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import { AssessmentWizard } from "@/components/assessment/AssessmentWizard";
 
 export const metadata: Metadata = {
-  title: "Digital assessment",
+  title: "Дижитал үнэлгээ",
   description:
-    "Answer 24 questions across strategy, operations, technology, data, automation, and people to see your digital maturity profile.",
+    "Стратеги, үйл ажиллагаа, технологи, дата, автоматжуулалт, хүний нөөцийг хамарсан 24 асуултад хариулж дижитал бэлэн байдлын профайлаа харна уу.",
 };
 
 export default function AssessmentPage() {

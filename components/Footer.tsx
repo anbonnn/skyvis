@@ -1,16 +1,50 @@
+"use client";
+
 import Link from "next/link";
 import { Wordmark } from "./Wordmark";
+import { useLanguage } from "@/lib/language";
 
-const NAV = [
-  { href: "/#services", label: "Services" },
-  { href: "/#assessment", label: "Assessment" },
-  { href: "/#methodology", label: "Methodology" },
-  { href: "/#industries", label: "Industries" },
-  { href: "/#about", label: "About" },
-  { href: "/#insights", label: "Insights" },
-];
+const NAV = {
+  mn: [
+    { href: "/#services", label: "Үйлчилгээ" },
+    { href: "/#assessment", label: "Үнэлгээ" },
+    { href: "/#methodology", label: "Арга зүй" },
+    { href: "/#about", label: "Бидний тухай" },
+  ],
+  en: [
+    { href: "/#services", label: "Services" },
+    { href: "/#assessment", label: "Assessment" },
+    { href: "/#methodology", label: "Methodology" },
+    { href: "/#about", label: "About" },
+  ],
+};
+
+const COPY = {
+  mn: {
+    tagline: "Хар. Шилжи. Өс.",
+    body: "Бизнесийн үнэлгээ, дижитал шилжилт, технологийн хөгжүүлэлт.",
+    company: "Байгууллага",
+    contact: "Холбоо барих",
+    location: "Улаанбаатар, Монгол улс",
+    rights: "Бүх эрх хуулиар хамгаалагдсан.",
+    stripe: "Бизнесийн үнэлгээ · Дижитал шилжилт · Технологи",
+  },
+  en: {
+    tagline: "See. Transform. Grow.",
+    body: "Business assessment, digital transformation, and technology development.",
+    company: "Company",
+    contact: "Contact",
+    location: "Ulaanbaatar, Mongolia",
+    rights: "All rights reserved.",
+    stripe: "Business assessment · Digital transformation · Technology",
+  },
+};
 
 export function Footer() {
+  const { locale } = useLanguage();
+  const nav = NAV[locale];
+  const t = COPY[locale];
+
   return (
     <footer
       className="border-t border-white/10 bg-[var(--ink)] pb-[34px] pt-[clamp(48px,5vw,72px)] text-[#8fa8c6]"
@@ -21,17 +55,15 @@ export function Footer() {
           <div>
             <Wordmark onDark />
             <div className="mt-4 font-display text-[1.05rem] font-bold tracking-[-0.02em] text-white">
-              See. Transform. Grow.
+              {t.tagline}
             </div>
-            <p className="mt-5 max-w-[34ch] text-[0.92rem]">
-              Business assessment, digital transformation, and technology development.
-            </p>
+            <p className="mt-5 max-w-[34ch] text-[0.92rem]">{t.body}</p>
           </div>
 
           <div>
-            <h4 className="mb-4 font-display text-[0.85rem] font-bold tracking-[0.03em] text-white">Company</h4>
+            <h4 className="mb-4 font-display text-[0.85rem] font-bold tracking-[0.03em] text-white">{t.company}</h4>
             <ul className="m-0 grid list-none gap-[11px] p-0">
-              {NAV.map((n) => (
+              {nav.map((n) => (
                 <li key={n.href}>
                   <Link href={n.href} className="text-[0.92rem] transition-colors hover:text-white">
                     {n.label}
@@ -42,9 +74,9 @@ export function Footer() {
           </div>
 
           <div>
-            <h4 className="mb-4 font-display text-[0.85rem] font-bold tracking-[0.03em] text-white">Contact</h4>
+            <h4 className="mb-4 font-display text-[0.85rem] font-bold tracking-[0.03em] text-white">{t.contact}</h4>
             <ul className="m-0 grid list-none gap-[11px] p-0 text-[0.92rem]">
-              <li>Ulaanbaatar, Mongolia</li>
+              <li>{t.location}</li>
               <li>
                 <a href="mailto:hello@skyvis.mn" className="transition-colors hover:text-white">
                   hello@skyvis.mn
@@ -59,8 +91,8 @@ export function Footer() {
         </div>
 
         <div className="flex flex-wrap justify-between gap-[14px] border-t border-white/10 pt-[26px] text-[0.85rem]">
-          <div>© {new Date().getFullYear()} SKYVIS. All rights reserved.</div>
-          <div>Business assessment · Digital transformation · Technology</div>
+          <div>© {new Date().getFullYear()} SKYVIS. {t.rights}</div>
+          <div>{t.stripe}</div>
         </div>
       </div>
     </footer>

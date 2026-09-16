@@ -2,7 +2,8 @@
 
 import { motion, useReducedMotion } from "framer-motion";
 import { useMemo } from "react";
-import { DIMENSIONS, type Scores } from "@/lib/dimensions";
+import { getDimensions, type Scores } from "@/lib/dimensions";
+import { useLanguage } from "@/lib/language";
 
 const CX = 160;
 const CY = 146;
@@ -15,31 +16,33 @@ function point(index: number, radius: number, count: number) {
 
 export function RadarChart({ scores, label }: { scores: Scores; label: string }) {
   const reduce = useReducedMotion();
-  const n = DIMENSIONS.length;
+  const { locale } = useLanguage();
+  const dimensions = useMemo(() => getDimensions(locale), [locale]);
+  const n = dimensions.length;
 
   const { rings, axes, shape, nodes, labels } = useMemo(() => {
     const rings = [1, 2, 3, 4, 5].map((level) => {
-      const d = DIMENSIONS.map((_, i) => {
+      const d = dimensions.map((_, i) => {
         const [x, y] = point(i, (R * level) / 5, n);
         return `${i ? "L" : "M"}${x.toFixed(1)},${y.toFixed(1)}`;
       }).join("");
       return `${d}Z`;
     });
 
-    const axes = DIMENSIONS.map((_, i) => point(i, R, n));
+    const axes = dimensions.map((_, i) => point(i, R, n));
 
     const shape =
-      DIMENSIONS.map((dim, i) => {
+      dimensions.map((dim, i) => {
         const value = Math.max(0.4, scores[dim.key] ?? 0);
         const [x, y] = point(i, (R * value) / 5, n);
         return `${i ? "L" : "M"}${x.toFixed(1)},${y.toFixed(1)}`;
       }).join("") + "Z";
 
-    const nodes = DIMENSIONS.map((dim, i) =>
+    const nodes = dimensions.map((dim, i) =>
       point(i, (R * Math.max(0.4, scores[dim.key] ?? 0)) / 5, n)
     );
 
-    const labels = DIMENSIONS.map((dim, i) => {
+    const labels = dimensions.map((dim, i) => {
       const [x, y] = point(i, R + 22, n);
       const cos = Math.cos((Math.PI * 2 * i) / n - Math.PI / 2);
       const anchor = cos > 0.3 ? "start" : cos < -0.3 ? "end" : "middle";
@@ -47,7 +50,7 @@ export function RadarChart({ scores, label }: { scores: Scores; label: string })
     });
 
     return { rings, axes, shape, nodes, labels };
-  }, [scores, n]);
+  }, [scores, n, dimensions]);
 
   return (
     <svg viewBox="0 0 320 300" role="img" aria-label={label} className="w-full">
@@ -88,9 +91,10 @@ export function RadarChart({ scores, label }: { scores: Scores; label: string })
 }
 
 export function ScoreBars({ scores, count = 4 }: { scores: Scores; count?: number }) {
+  const { locale } = useLanguage();
   const weakest = useMemo(
-    () => [...DIMENSIONS].sort((a, b) => scores[a.key] - scores[b.key]).slice(0, count),
-    [scores, count]
+    () => getDimensions(locale).sort((a, b) => scores[a.key] - scores[b.key]).slice(0, count),
+    [scores, count, locale]
   );
 
   return (

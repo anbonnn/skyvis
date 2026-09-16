@@ -2,14 +2,24 @@
 
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
+import { useLanguage } from "@/lib/language";
 
-const WAYPOINTS = [
-  { x: 52, y: 382, r: 7, label: "Business", lx: 68, ly: 398 },
-  { x: 176, y: 320, r: 7, label: "Assessment", lx: 192, ly: 336 },
-  { x: 292, y: 246, r: 7, label: "Insights", lx: 308, ly: 262 },
-  { x: 410, y: 162, r: 7, label: "Transformation", lx: 300, ly: 150 },
-  { x: 518, y: 74, r: 8.5, label: "Growth", lx: 424, ly: 60, lead: true },
-];
+const WAYPOINTS = {
+  mn: [
+    { x: 52, y: 382, r: 7, label: "Бизнес", lx: 68, ly: 398 },
+    { x: 176, y: 320, r: 7, label: "Үнэлгээ", lx: 192, ly: 336 },
+    { x: 292, y: 246, r: 7, label: "Дүгнэлт", lx: 308, ly: 262 },
+    { x: 410, y: 162, r: 7, label: "Шилжилт", lx: 300, ly: 150 },
+    { x: 518, y: 74, r: 8.5, label: "Өсөлт", lx: 424, ly: 60, lead: true },
+  ],
+  en: [
+    { x: 52, y: 382, r: 7, label: "Business", lx: 68, ly: 398 },
+    { x: 176, y: 320, r: 7, label: "Assessment", lx: 192, ly: 336 },
+    { x: 292, y: 246, r: 7, label: "Insights", lx: 308, ly: 262 },
+    { x: 410, y: 162, r: 7, label: "Transformation", lx: 300, ly: 150 },
+    { x: 518, y: 74, r: 8.5, label: "Growth", lx: 424, ly: 60, lead: true },
+  ],
+};
 
 const SCATTER = [
   [46, 252, 3.5], [92, 316, 3], [34, 352, 4], [128, 268, 3], [76, 390, 3.5],
@@ -28,8 +38,38 @@ const LATTICE_LINES = [
 const PATH =
   "M52,382 C112,360 132,344 176,320 C224,294 248,276 292,246 C340,212 368,190 410,162 C456,132 486,104 518,74";
 
+const COPY = {
+  mn: {
+    h1: "Бизнесээ хаашаа хөгжүүлж болохыг харцгаая.",
+    lede:
+      "SKYVIS нь таны бизнес өнөөдөр хэрхэн ажиллаж байгааг үнэлж, дотор нь буй дижитал боломжуудыг тодорхойлж, технологи, автоматжуулалт, хиймэл оюуны тусламжтайгаар үйл ажиллагаагаа өөрчилдөг.",
+    ctaPrimary: "Дижитал үнэлгээгээ эхлүүлэх",
+    ctaSecondary: "Арга барилаа судлах",
+    tags: ["Бизнесийн үнэлгээ", "Дижитал шилжилт", "Технологийн хөгжүүлэлт"],
+    ariaHero:
+      "Тархай бутархай, хоорондоо холбогдоогүй үйл ажиллагаанаас үнэлгээ, дүгнэлтээр дамжин холбогдсон дижитал ирээдүй хүртэл өргөгдөж буй зам.",
+    fragmented: "Өнөөдөр тархай бутархай",
+    connected: "Холбогдсон",
+  },
+  en: {
+    h1: "See where your business can go.",
+    lede:
+      "SKYVIS assesses how your business operates today, identifies the digital opportunities inside it, and transforms your operations through technology, automation, and AI.",
+    ctaPrimary: "Start your digital assessment",
+    ctaSecondary: "Explore our approach",
+    tags: ["Business assessment", "Digital transformation", "Technology development"],
+    ariaHero:
+      "A path rising from scattered, disconnected operations through assessment and insight toward a connected digital future.",
+    fragmented: "Fragmented today",
+    connected: "Connected",
+  },
+};
+
 export function Hero() {
   const reduce = useReducedMotion();
+  const { locale } = useLanguage();
+  const t = COPY[locale];
+  const waypoints = WAYPOINTS[locale];
 
   return (
     <section className="relative overflow-hidden py-[clamp(56px,6vw,96px)] pb-[clamp(64px,7vw,110px)]">
@@ -40,20 +80,16 @@ export function Hero() {
       <div className="wrap relative">
         <div className="grid items-center gap-[clamp(32px,4vw,64px)] lg:grid-cols-[1.02fr_0.98fr]">
           <div>
-            <h1 className="max-w-[13ch]">See where your business can go.</h1>
-            <p className="lede mt-[26px] max-w-[46ch]">
-              SKYVIS assesses how your business operates today, identifies the digital
-              opportunities inside it, and transforms your operations through technology,
-              automation, and AI.
-            </p>
+            <h1 className="max-w-[13ch]">{t.h1}</h1>
+            <p className="lede mt-[26px] max-w-[46ch]">{t.lede}</p>
             <div className="mt-9 flex flex-wrap gap-3">
-              <Link href="/assessment" className="btn btn-p">Start your digital assessment</Link>
-              <Link href="#methodology" className="btn btn-s">Explore our approach</Link>
+              <Link href="/assessment" className="btn btn-p">{t.ctaPrimary}</Link>
+              <Link href="#methodology" className="btn btn-s">{t.ctaSecondary}</Link>
             </div>
             <div className="mt-10 flex flex-wrap gap-x-[18px] gap-y-2 border-t border-[var(--line)] pt-[22px] text-[0.87rem] font-medium text-[var(--text-3)]">
-              {["Business assessment", "Digital transformation", "Technology development"].map((t, i, arr) => (
-                <span key={t} className="flex items-center gap-[18px]">
-                  {t}
+              {t.tags.map((tag, i, arr) => (
+                <span key={tag} className="flex items-center gap-[18px]">
+                  {tag}
                   {i < arr.length - 1 && <i className="h-1 w-1 rounded-full bg-[var(--line-2)]" />}
                 </span>
               ))}
@@ -64,7 +100,7 @@ export function Hero() {
             <svg
               viewBox="0 0 560 430"
               role="img"
-              aria-label="A path rising from scattered, disconnected operations through assessment and insight toward a connected digital future."
+              aria-label={t.ariaHero}
             >
               <g>
                 {SCATTER.map(([cx, cy, r], i) => (
@@ -93,7 +129,7 @@ export function Hero() {
                 transition={{ duration: 2.1, ease: [0.33, 1, 0.5, 1], delay: 0.25 }}
               />
 
-              {WAYPOINTS.map((w) => (
+              {waypoints.map((w) => (
                 <g key={w.label}>
                   <circle cx={w.x} cy={w.y} r={w.r} fill="var(--bg)" stroke="var(--sky)" strokeWidth={2.5} />
                   <circle cx={w.x} cy={w.y} r={w.r / 2.4} fill="var(--sky)" />
@@ -107,8 +143,8 @@ export function Hero() {
                 </g>
               ))}
 
-              <text x={52} y={418} className="fill-[var(--text-3)] text-[11px]">Fragmented today</text>
-              <text x={430} y={196} className="fill-[var(--text-3)] text-[11px]">Connected</text>
+              <text x={52} y={418} className="fill-[var(--text-3)] text-[11px]">{t.fragmented}</text>
+              <text x={430} y={196} className="fill-[var(--text-3)] text-[11px]">{t.connected}</text>
             </svg>
           </div>
         </div>
