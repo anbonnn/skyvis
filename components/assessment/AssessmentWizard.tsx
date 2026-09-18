@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Wordmark } from "@/components/Wordmark";
 import { DIMENSIONS, type DimensionKey, type Scores } from "@/lib/dimensions";
 import { QUESTION_STEPS, TOTAL_STEPS } from "./steps";
@@ -26,12 +26,19 @@ interface Contact {
 
 const RESULT_STEP = TOTAL_STEPS + 1;
 
-export function AssessmentWizard() {
+export function AssessmentWizard({
+  assessmentId,
+  savedAnswers,
+}: {
+  assessmentId?: string;
+  savedAnswers?: Answers;
+} = {}) {
   const router = useRouter();
   const topRef = useRef<HTMLDivElement>(null);
 
   const [step, setStep] = useState(1);
-  const [answers, setAnswers] = useState<Answers>({});
+  const [answers, setAnswers] = useState<Answers>(savedAnswers ?? {});
+  const [saveState, setSaveState] = useState<"idle" | "saving" | "saved">("idle");
   const [hint, setHint] = useState("");
   const [company, setCompany] = useState<Company>({
     company: "", industry: "", employees: "", locations: "", revenue: "",
@@ -58,6 +65,22 @@ export function AssessmentWizard() {
     }, {} as Scores);
   }, [answers]);
 
+  // Autosave progress so a long instrument can be paused and resumed.
+  useEffect(() => {
+    if (!assessmentId || !Object.keys(answers).length) return;
+    setSaveState("saving");
+    const t = setTimeout(() => {
+      fetch("/api/responses", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ assessmentId, answers }),
+      })
+        .then(() => setSaveState("saved"))
+        .catch(() => setSaveState("idle"));
+    }, 900);
+    return () => clearTimeout(t);
+  }, [answers, assessmentId]);
+
   const isQuestionStep = step >= 2 && step <= QUESTION_STEPS.length + 1;
   const questionStep = isQuestionStep ? QUESTION_STEPS[step - 2] : null;
   const isResult = step === RESULT_STEP;
@@ -77,14 +100,15 @@ export function AssessmentWizard() {
     }
 
     if (step === TOTAL_STEPS) {
-      // Submit here. See app/api/assessment/route.ts for the endpoint stub.
-      void fetch("/api/assessment", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ company, contact, answers, scores }),
-      }).catch(() => {
-        /* Result still shows if the endpoint isn't wired up yet. */
-      });
+      if (assessmentId) {
+        void fetch("/api/responses", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ assessmentId, answers, submit: true }),
+        }).catch(() => {
+          /* The result still renders; the response is saved on the next attempt. */
+        });
+      }
       setStep(RESULT_STEP);
       scrollTop();
       return;
@@ -111,6 +135,9 @@ export function AssessmentWizard() {
             <Wordmark className="!text-[1.05rem]" />
             <span className="text-[0.85rem] text-[var(--text-3)]">
               {isResult ? "Complete" : `Step ${step} of ${TOTAL_STEPS}`}
+              {assessmentId && saveState !== "idle" && (
+                <span className="ml-2">{saveState === "saving" ? "· saving…" : "· saved"}</span>
+              )}
             </span>
             <button
               type="button"
