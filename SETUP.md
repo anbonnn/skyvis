@@ -80,3 +80,46 @@ diagnostic than the average: when leadership and operational staff describe the 
 capability a full level apart, the gap is the finding.
 
 Signed-out visitors can still take the public self-assessment; nothing is stored.
+
+---
+
+## Business map — migration
+
+The map adds three tables: `org_nodes`, `processes`, `process_steps`. They are in
+`lib/schema.sql`, which uses `create table if not exists`, so re-running setup is safe
+and will not touch your existing data.
+
+1. In Vercel, temporarily re-add `SETUP_SECRET` with any long random string.
+2. Redeploy so the variable reaches the running build.
+3. Run it once:
+
+```bash
+curl -X POST https://skyvis.vercel.app/api/setup \
+  -H "x-setup-secret: YOUR_SETUP_SECRET"
+```
+
+4. Delete `SETUP_SECRET` again and redeploy.
+
+Then open `/dashboard/map`.
+
+## Using the map
+
+**Structure tab.** Add the company node first — everything hangs from it. Then
+departments, teams and positions. Each level has its own shape: hexagon, square,
+triangle, circle.
+
+Tick *Required by policy, not staffed* for a role a policy demands but nobody holds. It
+draws hollow and dashed, so the gap between the declared organization and the real one
+is visible rather than argued about.
+
+**Process tab.** Create a process, then add steps in order. Each step records who does
+it, what they actually do, which system carries it, and any timing rule.
+
+The *how it's carried* field is the one that matters. "No system" and "Excel" are
+different findings: one usually needs an owner or a policy, the other needs a tool. Get
+this wrong and the diagnosis collapses — if everything is marked as a system, nothing
+looks wrong.
+
+Steps whose owner was deleted show as *no owner*, which is a finding rather than a bug.
+
+**Permissions.** Company admins and SKYVIS staff can edit. Members can view.
